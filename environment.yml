@@ -1,0 +1,13 @@
+name: mandi
+channels:
+  - defaults
+  - https://repo.anaconda.com/pkgs/main
+  - https://repo.anaconda.com/pkgs/r
+dependencies:
+  - python=3.11
+  - ipykernel
+  - py-xgboost
+  - numpy
+  - pandas
+  - ipython
+  - llama-cpp-python

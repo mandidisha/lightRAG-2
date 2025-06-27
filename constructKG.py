@@ -94,7 +94,7 @@ def hybrid_triple_extraction(text):
 # --- Ollama Chat Call ---
 def llm_ollama_generate(prompt, llm_client, max_tokens=128):
     response = llm_client.chat(
-        model="mixtral",
+        model="mistral",
         messages=[{"role": "user", "content": prompt}],
         options={"num_predict": max_tokens}
     )

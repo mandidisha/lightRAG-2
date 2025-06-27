@@ -1,27 +1,45 @@
-# feedback_ui.py - Add user feedback widgets in Gradio
+import json
+import os
+from datetime import datetime
 
-import gradio as gr
-
-def process_interaction(question, answer, clarity_score, helpful_score):
+def process_interaction(
+    question: str,
+    answer: str,
+    explanation: str,
+    clarity_score: int,
+    helpfulness_score: int
+):
     """
     Process the user's interaction and feedback.
-    In a real app, you might log these to a database or file.
+    Appends each record to `feedback.json` in the working directory.
     """
-    print(f"Q: {question}")
-    print(f"A: {answer}")
-    print(f"Clarity (1-5): {clarity_score}, Helpfulness (1-5): {helpful_score}")
-    # TODO: Save these metrics for analysis, e.g., append to CSV or database.
-    return answer  # or any other output if needed
+    # Build one entry
+    entry = {
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "question": question,
+        "answer": answer,
+        "explanation": explanation,
+        "ratings": {
+            "clarity": clarity_score,
+            "helpfulness": helpfulness_score
+        }
+    }
 
-with gr.Blocks() as demo:
-    question_input = gr.Textbox(label="Question")
-    answer_output = gr.Textbox(label="Answer/Explanation")
-    clarity_slider = gr.Slider(1, 5, step=1, label="Clarity (1=poor, 5=clear)")
-    helpful_slider = gr.Slider(1, 5, step=1, label="Helpfulness")
-    # When the user submits, process the feedback
-    question_input.submit(process_interaction, 
-                           inputs=[question_input, answer_output, clarity_slider, helpful_slider], 
-                           outputs=answer_output)
+    # Load existing feedback list (or start new)
+    feedback_path = "feedback.json"
+    if os.path.exists(feedback_path):
+        try:
+            with open(feedback_path, "r", encoding="utf-8") as f:
+                all_feedback = json.load(f)
+        except json.JSONDecodeError:
+            all_feedback = []
+    else:
+        all_feedback = []
 
-# Note: The above is a simplified illustration. In your chat interface, you would trigger
-# `process_interaction` after generating each answer, capturing the sliders' values.
+    # Append and write back
+    all_feedback.append(entry)
+    with open(feedback_path, "w", encoding="utf-8") as f:
+        json.dump(all_feedback, f, indent=2, ensure_ascii=False)
+
+    # Optionally, log to console for dev
+    print(f"[Feedback saved] {entry['timestamp']} – question: {question!r}")

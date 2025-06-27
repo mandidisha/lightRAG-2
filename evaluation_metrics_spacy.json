@@ -1,0 +1,73 @@
+{
+  "total_examples": 20,
+  "recall_at_5": {
+    "KG": 0.60,
+    "Dense": 1.00,
+    "Hybrid": 0.325
+  },
+  "exact_match": {
+    "KG": 0.40,
+    "Dense": 0.30,
+    "Hybrid": 0.40
+  },
+  "f1_score": {
+    "KG": 0.5378,
+    "Dense": 0.4378,
+    "Hybrid": 0.5378
+  },
+  "hallucination_rate": {
+    "KG": 0.177,
+    "Dense": 0.0094,
+    "Hybrid": 0.016
+  },
+  "statistical_tests": {
+    "KG_vs_Dense": {
+      "F1": {
+        "paired_ttest_p": 0.0,
+        "wilcoxon_p": 0.0,
+        "interpretation": "Highly significant (p < 0.01)"
+      },
+      "EM": {
+        "paired_ttest_p": 0.0,
+        "wilcoxon_p": 0.0,
+        "interpretation": "Highly significant (p < 0.01)"
+      },
+      "hallucination": {
+        "chi2_p": 0.0,
+        "interpretation": "Highly significant (p < 0.01)"
+      }
+    },
+    "KG_vs_Hybrid": {
+      "F1": {
+        "paired_ttest_p": 0.0,
+        "wilcoxon_p": 0.0,
+        "interpretation": "Highly significant (p < 0.01)"
+      },
+      "EM": {
+        "paired_ttest_p": 0.0,
+        "wilcoxon_p": 0.0,
+        "interpretation": "Highly significant (p < 0.01)"
+      },
+      "hallucination": {
+        "chi2_p": 0.0,
+        "interpretation": "Highly significant (p < 0.01)"
+      }
+    },
+    "Dense_vs_Hybrid": {
+      "F1": {
+        "paired_ttest_p": 0.0,
+        "wilcoxon_p": 0.0,
+        "interpretation": "Highly significant (p < 0.01)"
+      },
+      "EM": {
+        "paired_ttest_p": 0.0001,
+        "wilcoxon_p": 0.0001,
+        "interpretation": "Highly significant (p < 0.01)"
+      },
+      "hallucination": {
+        "chi2_p": 0.0043,
+        "interpretation": "Highly significant (p < 0.01)"
+      }
+    }
+  }
+}
