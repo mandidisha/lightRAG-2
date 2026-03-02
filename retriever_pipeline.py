@@ -28,6 +28,13 @@ class KGRetriever:
         embed_model: str = 'all-MiniLM-L6-v2',
         rerank_model: str = 'cross-encoder/ms-marco-TinyBERT-L-2-v2'
     ):
+        if not triples:
+            raise ValueError(
+                "KGRetriever received 0 triples. "
+                "The LLM likely failed to extract any — try a larger model (e.g. mistral, llama3.2:3b) "
+                "or run without --use_llm to use spaCy instead."
+            )
+
         self.triples = triples
         # flatten each triple into a single string for embedding
         self.triple_texts = [f"{s} {r} {o}" for s, r, o in triples]

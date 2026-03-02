@@ -58,11 +58,17 @@ def init_pipeline(use_llm=False, sample_data=None):
         llm_client = Client(host="http://localhost:11434")
         triples = []
         for q, _, c in sample_data:
-            triples.extend(extract_triples_llm(c, question=q, llm_client=llm_client))
+            triples.extend(extract_triples_llm(c, question=q, llm_client=llm_client, model="llama3.2:3b"))
         kg_graph = KnowledgeGraph1()
         for t in triples:
             kg_graph.add_triple(*t)
-        logger.info("Total triples in KG (LLM): %d", len(kg_graph.find_edges()))
+        total_triples = len(kg_graph.find_edges())
+        if total_triples == 0:
+            logger.warning(
+                "0 triples extracted — the model may be too small to follow the format. "
+                "Try: ollama pull mistral  or  ollama pull llama3.2:3b"
+            )
+        logger.info("Total triples in KG (LLM): %d", total_triples)
     else:
         logger.info("Using spaCy for triple extraction...")
         kg_graph = run_retriever_pipeline(sample_data, use_llm=False, verbose=True)
@@ -78,7 +84,7 @@ def init_pipeline(use_llm=False, sample_data=None):
     kg_retriever    = KGRetriever(kg_graph.find_edges())
     dense_retriever = RealDenseRetriever([ctx for (_, _, ctx) in sample_data])
     ans_gen         = AnswerGenerator()
-    ui_gen          = OllamaAnswerGenerator()
+    ui_gen          = OllamaAnswerGenerator(model_name="llama3.2:3b")
 
     return sample_data
 
