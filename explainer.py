@@ -1,6 +1,9 @@
 # explainer.py
 
+import logging
 from typing import List, Tuple, Optional, Callable
+
+logger = logging.getLogger(__name__)
 import html
 from retriever_pipeline import KGRetriever
 

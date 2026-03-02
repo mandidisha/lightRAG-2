@@ -1,7 +1,10 @@
 import os
+import logging
 from typing import List, Optional
 from ollama import Client
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+
+logger = logging.getLogger(__name__)
 
 
 class AnswerGenerator:

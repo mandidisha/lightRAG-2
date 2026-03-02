@@ -1,13 +1,14 @@
 import os
 import re
+import logging
 import spacy
+
+logger = logging.getLogger(__name__)
 import textacy
 from fuzzywuzzy import fuzz
 from knowledge_graph import KnowledgeGraph1
 import warnings
-import atexit
-import multiprocessing as mp
-from ollama import Client  # Replaces llama_cpp
+from ollama import Client
 
 # --- Environment Settings ---
 os.environ["OMP_NUM_THREADS"] = "1"
@@ -15,18 +16,15 @@ os.environ["MKL_NUM_THREADS"] = "1"
 os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "0"
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-# --- Resource Tracker Fix for macOS ---
-warnings.filterwarnings("ignore", category=UserWarning, message="resource_tracker: There appear to be")
-try:
-    mp.resource_tracker.unregister('/semaphore_name', 'semaphore')
-except (KeyError, AttributeError):
-    pass
+# --- Suppress macOS resource tracker noise ---
+warnings.filterwarnings("ignore", category=UserWarning, message="resource_tracker")
 
 # --- Load spaCy ---
 try:
     nlp = spacy.load("en_core_web_lg")
 except Exception as e:
-    raise e
+    logger.error("Failed to load spaCy model: %s", e)
+    raise
 
 # --- Heuristic Filter ---
 BAD_WORDS = {
@@ -92,16 +90,16 @@ def hybrid_triple_extraction(text):
     return [t for t in triples if t not in seen and not seen.add(t) and is_informative_triple(t)]
 
 # --- Ollama Chat Call ---
-def llm_ollama_generate(prompt, llm_client, max_tokens=128):
+def llm_ollama_generate(prompt, llm_client, model="mistral", max_tokens=128):
     response = llm_client.chat(
-        model="mistral",
+        model=model,
         messages=[{"role": "user", "content": prompt}],
         options={"num_predict": max_tokens}
     )
     return response["message"]["content"]
 
 # --- LLM Triple Extraction ---
-def extract_triples_llm(text, question=None, llm_client=None, max_tokens=128):
+def extract_triples_llm(text, question=None, llm_client=None, model="mistral", max_tokens=128):
     if llm_client is None:
         raise ValueError("extract_triples_llm requires an llm_client when use_llm=True")
 
@@ -122,7 +120,7 @@ def extract_triples_llm(text, question=None, llm_client=None, max_tokens=128):
         prompt += f"Question: {question}\n"
     prompt += f"Passage:\n{text}\n\nTriples:\n"
 
-    output = llm_ollama_generate(prompt, llm_client=llm_client, max_tokens=max_tokens)
+    output = llm_ollama_generate(prompt, llm_client=llm_client, model=model, max_tokens=max_tokens)
 
     triples = []
     for line in output.strip().split("\n"):
@@ -134,12 +132,13 @@ def extract_triples_llm(text, question=None, llm_client=None, max_tokens=128):
 
 # --- Test Block ---
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
     from dataset import load_nq_data
     sample_data = load_nq_data(limit=3)
     llm_client = Client(host="http://localhost:11434")
     for question, answer, context in sample_data:
-        print("\n====CONTEXT====\n" + context[:300])
+        logger.info("CONTEXT: %.300s", context)
         triples = extract_triples_llm(context, question, llm_client=llm_client)
-        print("====TRIPLES====")
+        logger.info("TRIPLES:")
         for t in triples:
-            print(t)
+            logger.info("  %s", t)

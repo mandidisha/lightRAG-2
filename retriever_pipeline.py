@@ -1,7 +1,10 @@
 import re
+import logging
 from typing import List, Tuple, Optional
 
 from knowledge_graph import KnowledgeGraph1
+
+logger = logging.getLogger(__name__)
 from constructKG import (
     nlp,
     hybrid_triple_extraction,
@@ -135,10 +138,10 @@ def run_retriever_pipeline(
 
     if verbose:
         all_edges = kg.find_edges()
-        print(f"[RetrieverPipeline] Total triples in KG: {len(all_edges)}")
-        print(f"[RetrieverPipeline] Contexts with ≥1 gold‐answer triple: {num_with_gold}")
-        print("[RetrieverPipeline] First 10 triples:")
+        logger.info("Total triples in KG: %d", len(all_edges))
+        logger.info("Contexts with >=1 gold-answer triple: %d", num_with_gold)
+        logger.info("First 10 triples:")
         for edge in all_edges[:10]:
-            print(edge)
+            logger.info("  %s", edge)
 
     return kg
