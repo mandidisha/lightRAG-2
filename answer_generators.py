@@ -23,7 +23,7 @@ class AnswerGenerator:
 
 
 class OllamaAnswerGenerator:
-    def __init__(self, model_name="llama3", host="http://localhost:11434"):
+    def __init__(self, model_name="tinyllama", host="http://localhost:11434"):
         self.client = Client(host=host)
         self.model = model_name
 

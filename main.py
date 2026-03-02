@@ -172,10 +172,10 @@ def launch_gradio_ui():
 
 if __name__ == "__main__":
     # Use fork on macOS to avoid semaphore KeyErrors
-    try:
-        mp.set_start_method("fork")
-    except RuntimeError:
-        pass
+    # try:
+    #     mp.set_start_method("spawn")
+    # except RuntimeError:
+    #     pass
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--use_llm", action="store_true")
